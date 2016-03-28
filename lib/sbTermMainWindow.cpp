@@ -38,7 +38,7 @@ public:
     QPointer<QLabel>         status;
     QPointer<QToolButton>    connectButton;
     QPointer<QLineEdit>      sendTextEdit;
-    QPointer<QWidget>        sendWidget;
+    QPointer<QWidget>        commandWidget;
     QPointer<QMenu>          portMenu;
     QPointer<QMenu>          baudrateMenu;
     
@@ -107,19 +107,30 @@ sbTermMainWindow::sbTermMainWindow(QWidget *parent) :
     d->sendTextEdit = new QLineEdit(this);
     d->sendTextEdit->setPlaceholderText(tr("type text to send here"));
     
-    QHBoxLayout * sendLayout = new QHBoxLayout;
-    sendLayout->addWidget(new QLabel(tr("Input:"), this));
-    sendLayout->addWidget(d->sendTextEdit);
+    QHBoxLayout * commandLayout = new QHBoxLayout;
+    commandLayout->addWidget(new QLabel(tr("Input:"), this));
+    commandLayout->addWidget(d->sendTextEdit);
     
-    d->sendWidget = new QWidget(this);
-    d->sendWidget->setLayout(sendLayout);
-    d->sendWidget->setEnabled(false);
+    d->commandWidget = new QWidget(this);
+    d->commandWidget->setLayout(commandLayout);
+    d->commandWidget->setEnabled(false);
+    
+    d->connectButton = new QToolButton(this);
+    d->connectButton->setMinimumSize(25, 25);
+    d->connectButton->setIcon(QIcon(":images/disconnect.png"));
+    d->connectButton->setFocusPolicy(Qt::NoFocus);
+    
+    QHBoxLayout * bottomLayout = new QHBoxLayout;
+    bottomLayout->setSpacing(2);
+    bottomLayout->setMargin(2);
+    bottomLayout->addWidget(d->connectButton);
+    bottomLayout->addWidget(d->commandWidget);
     
     QVBoxLayout * layout = new QVBoxLayout;
     layout->setSpacing(1);
     layout->setMargin(0);
     layout->addWidget(&d->console);
-    layout->addWidget(d->sendWidget);
+    layout->addLayout(bottomLayout);
     
     QWidget * centralWidget = new QWidget(this);
     centralWidget->setLayout(layout);
@@ -127,14 +138,10 @@ sbTermMainWindow::sbTermMainWindow(QWidget *parent) :
     this->setCentralWidget(centralWidget);
     
     this->setWindowIcon(QIcon(":/images/terminal.png"));
-    this->setWindowTitle(tr("Serial Blue  Terminal"));
+    this->setWindowTitle(tr("Serial Blue Terminal"));
     this->setMinimumSize(QSize(640, 480));
     
     d->settingsController.read(d->portSettings);
-    
-    d->connectButton = new QToolButton(this);
-    d->connectButton->setIcon(QIcon(":images/disconnect.png"));
-    d->connectButton->setFocusPolicy(Qt::NoFocus);
     
     /* Menu bar initialization */
     QMenuBar * menuBar = new QMenuBar;
@@ -204,7 +211,7 @@ sbTermMainWindow::sbTermMainWindow(QWidget *parent) :
     d->connectButton->setEnabled(!d->portSettings.portName.isEmpty());
     d->status = new QLabel(tr("Disconnected"),this);
     
-    this->statusBar()->addWidget(d->connectButton);
+//    this->statusBar()->addWidget(d->connectButton);
     this->statusBar()->addWidget(d->status);
     
     /* Connections */
@@ -355,7 +362,7 @@ void sbTermMainWindow::openSerialPort()
     d->serial.setStopBits(d->portSettings.stopBits);
     d->serial.setFlowControl(d->portSettings.flowControl);
     if (d->serial.open(QIODevice::ReadWrite)) {
-        d->sendWidget->setEnabled(true);
+        d->commandWidget->setEnabled(true);
         d->showStatusMessage(tr("Connected to %1 : %2, %3, %4, %5, %6")
                                 .arg(d->portSettings.portName)
                                 .arg(d->portSettings.baudRate)
@@ -369,7 +376,7 @@ void sbTermMainWindow::openSerialPort()
     }
     else {
         qCritical() << d->serial.errorString();
-        d->sendWidget->setEnabled(false);
+        d->commandWidget->setEnabled(false);
         d->showStatusMessage(QString(tr("Error: ") + d->serial.errorString()));
         d->connectButton->setIcon(QIcon(":images/disconnect.png"));
     }
@@ -381,7 +388,7 @@ void sbTermMainWindow::closeSerialPort()
         d->serial.close();
     }
     d->connectButton->setIcon(QIcon(":images/disconnect.png"));
-    d->sendWidget->setEnabled(false);
+    d->commandWidget->setEnabled(false);
     d->showStatusMessage(tr("Disconnected"));
     d->connectButton->setToolTip(tr("Connect to '%1'").arg(d->portSettings.portName));
     
@@ -415,7 +422,7 @@ void sbTermMainWindow::handleError(QSerialPort::SerialPortError error)
     if (error == QSerialPort::ResourceError) {
         qCritical() << tr("Critical Error:") << d->serial.errorString();
         d->connectButton->setIcon(QIcon(":images/disconnect.png"));
-        d->sendWidget->setEnabled(false);
+        d->commandWidget->setEnabled(false);
         d->showStatusMessage(tr("Disconnected"));
     }
 }

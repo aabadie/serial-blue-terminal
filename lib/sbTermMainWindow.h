@@ -9,11 +9,13 @@
 #ifndef SBTERMMAINWINDOW_H
 #define SBTERMMAINWINDOW_H
 
+#include "sbTermExports.h"
+
 #include <QtCore/QtGlobal>
 #include <QMainWindow>
 #include <QtSerialPort/QSerialPort>
 
-class sbTermMainWindow : public QMainWindow
+class SERIALBLUETERM_EXPORT sbTermMainWindow : public QMainWindow
 {
     Q_OBJECT
 
@@ -26,7 +28,7 @@ public:
     explicit sbTermMainWindow(QWidget *parent = 0);
     ~sbTermMainWindow();
 
-private slots:
+protected slots:
     void openSerialPort();
     void closeSerialPort();
     void writeData(const QByteArray &data);
