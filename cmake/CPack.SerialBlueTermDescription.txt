@@ -1,0 +1,4 @@
+DESCRIPTION
+===========
+
+Welcome to the installation process of Serial Blue Terminal.

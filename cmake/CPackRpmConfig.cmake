@@ -1,0 +1,5 @@
+set(CPACK_GENERATOR ${CPACK_GENERATOR};RPM)
+set(CPACK_RPM ON)
+set(CPACK_PACKAGE_NAME "sbterm")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Serial and RFCOMM Bluetooth communication application")
+set(CPACK_RPM_PACKAGE_DESCRIPTION "Serial and RFCOMM Bluetooth communication application")
