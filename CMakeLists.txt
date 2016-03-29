@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.0.2)
 
 project(SerialBlueTerminal VERSION "0.1.0")
 
+# Project options
 option(BUILD_DOCUMENTATION "Add target 'doc' to build documentation.")
 option(BUILD_PACKAGE       "Add target 'package' for package generation.")
 
+# Output paths
 set(EXECUTABLE_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")
 if (WIN32)
   set(LIBRARY_OUTPUT_PATH "${PROJECT_BINARY_DIR}/bin")

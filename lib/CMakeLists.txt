@@ -60,9 +60,9 @@ target_link_libraries(${PROJECT_NAME} ${${PROJECT_NAME}_LIBRARIES})
 source_group("Header Files" REGULAR_EXPRESSION .*\\.h\$)
 source_group("Generated Files" FILES ${${PROJECT_NAME}_MOC_SRCS})
 
-install(TARGETS ${PROJECT_NAME}
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        COMPONENT ${PROJECT_NAME})
+#install(TARGETS ${PROJECT_NAME}
+#        DESTINATION ${CMAKE_INSTALL_LIBDIR}
+#        COMPONENT ${PROJECT_NAME})
 # Installation rules
 if(WIN32)
   install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin
@@ -80,5 +80,6 @@ if(WIN32)
 else()
   install(TARGETS ${PROJECT_NAME} 
       LIBRARY 
-      DESTINATION lib)
+      DESTINATION lib
+      COMPONENT libs)
 endif()

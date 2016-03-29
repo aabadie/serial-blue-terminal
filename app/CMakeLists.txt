@@ -68,5 +68,5 @@ else()
   install(TARGETS ${PROJECT_NAME}
       RUNTIME
       DESTINATION bin
-      COMPONENT bin)
+      COMPONENT binary)
 endif()
