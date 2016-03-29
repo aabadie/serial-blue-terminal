@@ -121,14 +121,15 @@ sbTermMainWindow::sbTermMainWindow(QWidget *parent) :
     d->connectButton->setFocusPolicy(Qt::NoFocus);
     
     QHBoxLayout * bottomLayout = new QHBoxLayout;
-    bottomLayout->setSpacing(2);
-    bottomLayout->setMargin(2);
+    bottomLayout->setMargin(0);
+    bottomLayout->setContentsMargins(2, 0, 0, 0);
     bottomLayout->addWidget(d->connectButton);
     bottomLayout->addWidget(d->commandWidget);
     
     QVBoxLayout * layout = new QVBoxLayout;
-    layout->setSpacing(1);
+    layout->setSpacing(0);
     layout->setMargin(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(&d->console);
     layout->addLayout(bottomLayout);
     
@@ -411,7 +412,7 @@ void sbTermMainWindow::writeData(const QByteArray &data)
 
 void sbTermMainWindow::readData()
 {
-    while (d->serial.canReadLine()) {
+    if (d->serial.canReadLine()) {
         const QByteArray data = d->serial.readLine();
         d->console.putData(data, sbTermConsole::RX);
     }
