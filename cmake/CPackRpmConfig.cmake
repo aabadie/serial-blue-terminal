@@ -6,4 +6,4 @@ set(CPACK_RPM_PACKAGE_DESCRIPTION "Serial and RFCOMM Bluetooth communication app
 set(CPACK_RPM_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION}")
 set(CPACK_RPM_PACKAGE_RELEASE "${CPACK_PACKAGE_VERSION}")
 set(CPACK_RPM_PACKAGE_LICENSE "LGPLv3")
-set(CPACK_RPM_PACKAGE_REQUIRES "qt5-base qt5-connectivity qt5-serialport")
+set(CPACK_RPM_PACKAGE_REQUIRES "qt5-qtbase qt5-qtconnectivity qt5-qtserialport")
