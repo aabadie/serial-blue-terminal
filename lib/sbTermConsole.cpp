@@ -14,11 +14,7 @@
 #include <QTextCursor>
 #include <QKeyEvent>
 
-namespace {
-    const int MAX_BUFFER_SIZE = 1024;
-    const char * rxColor = "green";
-    const char * txColor = "red";
-}
+#include "sbTermSettings.h"
 
 class sbTermConsole::Private
 {
@@ -32,6 +28,9 @@ public:
     bool crlf;
     bool datetime;
     bool displayHexa;
+    QString rxColor;
+    QString txColor;
+    QString dtColor;
     
     QString convertToHex(const QString& string) const;
 };
@@ -55,7 +54,7 @@ sbTermConsole::sbTermConsole(QWidget *parent)
     this->document()->setMaximumBlockCount(1024);
     
     QPalette p = palette();
-    p.setColor(QPalette::Base, Qt::black);
+    p.setColor(QPalette::Base, "#1C1C1C");
     this->setPalette(p);
 }
 
@@ -68,8 +67,8 @@ void sbTermConsole::putData(const QByteArray &data, sbTermConsole::eInputSense s
 {   
     QString prefix("");
     if (d->datetime) {
-        prefix += QString("<span style='color:%1'>[ %2 ] </span> ")
-                .arg("white")
+        prefix += QString("<span style='color:%1;font-family:Courier'>[ %2 ] </span> ")
+                .arg(d->dtColor)
                 .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz"));
     }
 
@@ -78,11 +77,11 @@ void sbTermConsole::putData(const QByteArray &data, sbTermConsole::eInputSense s
     switch(sense) {
     case RX:
         senseStr = "RX";
-        color = QString(rxColor);
+        color = QString(d->rxColor);
         break;
     case TX:
         senseStr = "TX";
-        color = QString(txColor);
+        color = QString(d->txColor);
         break;
     default:
         senseStr = "NO-GO";
@@ -96,7 +95,7 @@ void sbTermConsole::putData(const QByteArray &data, sbTermConsole::eInputSense s
     toDisplay.replace("<", "&lt;");
     toDisplay.replace(" ", "&nbsp;");
 
-    QString htmlDisplay = QString("%1 <span style=""color:%3;font-weight:bold"">%2 # </span><span style=""color:%3>%4</span>")
+    QString htmlDisplay = QString("%1 <span style='color:%3;font-weight:bold;font-family:Courier'>%2 # </span><span style='color:%3;font-family:Courier'>%4</span>")
             .arg(prefix)
             .arg(senseStr)
             .arg(color)
@@ -129,4 +128,26 @@ bool sbTermConsole::displayHexadecimal() const
 void sbTermConsole::setDisplayHexadecimal(bool set)
 {
     d->displayHexa = set;
+}
+
+void sbTermConsole::setBackgroundColor(const QString &color)
+{
+    QPalette p = palette();
+    p.setColor(QPalette::Base, color);
+    this->setPalette(p);
+}
+
+void sbTermConsole::setDateTimeColor(const QString &color)
+{
+    d->dtColor = color;
+}
+
+void sbTermConsole::setRXColor(const QString &color)
+{
+    d->rxColor = color;
+}
+
+void sbTermConsole::setTXColor(const QString &color)
+{
+    d->txColor = color;
 }

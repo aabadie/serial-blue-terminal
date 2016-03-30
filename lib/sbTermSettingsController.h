@@ -1,7 +1,7 @@
 #ifndef SBTERMSETTINGSCONTROLLER_H
 #define SBTERMSETTINGSCONTROLLER_H
 
-#include "sbTermPortSettings.h"
+#include "sbTermSettings.h"
 
 class sbTermSettingsController
 {
@@ -10,8 +10,12 @@ public:
     virtual ~sbTermSettingsController();
     
     void initialize() const;
-    void read(sbTerm::PortSettings &settings) const;
-    void write(const sbTerm::PortSettings &settings) const;
+    
+    void readSerialSettings(sbTerm::PortSettings &settings) const;
+    void writeSerialSettings(const sbTerm::PortSettings &settings) const;
+    
+    void readConsoleOptions(sbTerm::ConsoleOptions &options) const;
+    void writeConsoleOptions(const sbTerm::ConsoleOptions &options) const;
     
 private:
     class Private;

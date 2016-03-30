@@ -43,6 +43,7 @@ public:
     QPointer<QMenu>          baudrateMenu;
     
     sbTerm::PortSettings     portSettings;
+    sbTerm::ConsoleOptions   consoleOptions;
     QSerialPort              serial;
     sbTermConsole            console;
     sbTermSettingsController settingsController;
@@ -142,7 +143,13 @@ sbTermMainWindow::sbTermMainWindow(QWidget *parent) :
     this->setWindowTitle(tr("Serial Blue Terminal"));
     this->setMinimumSize(QSize(640, 480));
     
-    d->settingsController.read(d->portSettings);
+    d->settingsController.readSerialSettings(d->portSettings);
+    d->settingsController.readConsoleOptions(d->consoleOptions);
+    
+    d->console.setBackgroundColor(d->consoleOptions.bgColor);
+    d->console.setDateTimeColor(d->consoleOptions.dtColor);
+    d->console.setRXColor(d->consoleOptions.rxColor);
+    d->console.setTXColor(d->consoleOptions.txColor);
     
     /* Menu bar initialization */
     QMenuBar * menuBar = new QMenuBar;
@@ -181,28 +188,28 @@ sbTermMainWindow::sbTermMainWindow(QWidget *parent) :
     // Options menu
     QAction* localEchoAction = new QAction(tr("Local echo"), optionMenu);
     localEchoAction->setCheckable(true);
-    localEchoAction->setChecked(d->portSettings.localEcho);
+    localEchoAction->setChecked(d->consoleOptions.localEcho);
     optionMenu->addAction(localEchoAction);
     connect(localEchoAction, &QAction::changed,
             this,            &sbTermMainWindow::onOptionLocalEchoChanged);
     QAction* crlfAction      = new QAction(tr("Add CRLF"), optionMenu);
     crlfAction->setCheckable(true);
-    crlfAction->setChecked(d->portSettings.crlf);
+    crlfAction->setChecked(d->consoleOptions.crlf);
     optionMenu->addAction(crlfAction);
     connect(crlfAction, &QAction::changed,
             this,       &sbTermMainWindow::onOptionCRLFChanged);
     QAction* hexaAction      = new QAction(tr("Hexadecimal"), optionMenu);
     hexaAction->setCheckable(true);
-    hexaAction->setChecked(d->portSettings.hexa);
+    hexaAction->setChecked(d->consoleOptions.hexa);
     optionMenu->addAction(hexaAction);
-    d->console.setDisplayHexadecimal(d->portSettings.hexa);
+    d->console.setDisplayHexadecimal(d->consoleOptions.hexa);
     connect(hexaAction, &QAction::changed,
             this,       &sbTermMainWindow::onOptionDisplayHexaChanged);
     QAction* datetimeAction  = new QAction(tr("Display datetime"), optionMenu);
     datetimeAction->setCheckable(true);
-    datetimeAction->setChecked(d->portSettings.datetime);
+    datetimeAction->setChecked(d->consoleOptions.datetime);
     optionMenu->addAction(datetimeAction);
-    d->console.setDatetimeDisplayed(d->portSettings.datetime);
+    d->console.setDatetimeDisplayed(d->consoleOptions.datetime);
     connect(datetimeAction, &QAction::changed,
             this,           &sbTermMainWindow::onOptionDatetimeChanged);
     
@@ -259,7 +266,7 @@ void sbTermMainWindow::onSerialPortSelected(QAction* action)
             d->connectButton->setToolTip(tr("Connect to '%1'").arg(d->portSettings.portName));
         }
 
-        d->settingsController.write(d->portSettings);
+        d->settingsController.writeSerialSettings(d->portSettings);
     }
 }
 
@@ -273,7 +280,7 @@ void sbTermMainWindow::onSerialSpeedSelected(QAction* action)
     d->baudrateMenu->setTitle(QString("Baudrate: %1").arg(action->data().toInt()));
     qDebug() << "Using baudrate" << d->portSettings.baudRate << "bps";
     
-    d->settingsController.write(d->portSettings);
+    d->settingsController.writeSerialSettings(d->portSettings);
     
     if (!d->portSettings.portName.isEmpty()) {
         d->connectButton->setEnabled(true);
@@ -287,8 +294,8 @@ void sbTermMainWindow::onOptionLocalEchoChanged()
         return;
     }
 
-    d->portSettings.localEcho = action->isChecked();
-    d->settingsController.write(d->portSettings);
+    d->consoleOptions.localEcho = action->isChecked();
+    d->settingsController.writeConsoleOptions(d->consoleOptions);
 }
 
 void sbTermMainWindow::onOptionCRLFChanged()
@@ -298,8 +305,8 @@ void sbTermMainWindow::onOptionCRLFChanged()
         return;
     }
 
-    d->portSettings.crlf = action->isChecked();
-    d->settingsController.write(d->portSettings);
+    d->consoleOptions.crlf = action->isChecked();
+    d->settingsController.writeConsoleOptions(d->consoleOptions);
 }
 
 void sbTermMainWindow::onOptionDatetimeChanged()
@@ -309,9 +316,9 @@ void sbTermMainWindow::onOptionDatetimeChanged()
         return;
     }
 
-    d->portSettings.datetime = action->isChecked();
-    d->console.setDatetimeDisplayed(d->portSettings.datetime);
-    d->settingsController.write(d->portSettings);
+    d->consoleOptions.datetime = action->isChecked();
+    d->console.setDatetimeDisplayed(d->consoleOptions.datetime);
+    d->settingsController.writeConsoleOptions(d->consoleOptions);
 }
 
 void sbTermMainWindow::onOptionDisplayHexaChanged()
@@ -321,9 +328,9 @@ void sbTermMainWindow::onOptionDisplayHexaChanged()
         return;
     }
 
-    d->portSettings.hexa = action->isChecked();
-    d->console.setDisplayHexadecimal(d->portSettings.hexa);
-    d->settingsController.write(d->portSettings);
+    d->consoleOptions.hexa = action->isChecked();
+    d->console.setDisplayHexadecimal(d->consoleOptions.hexa);
+    d->settingsController.writeConsoleOptions(d->consoleOptions);
 }
 
 void sbTermMainWindow::onConnectButtonClicked()
@@ -399,13 +406,13 @@ void sbTermMainWindow::closeSerialPort()
 void sbTermMainWindow::writeData(const QByteArray &data)
 {   
     QString toSend(data);
-    if (d->portSettings.crlf) {
+    if (d->consoleOptions.crlf) {
         toSend += "\r\n";
     }
     
     d->serial.write(toSend.toLocal8Bit());
     
-    if (d->portSettings.localEcho) {
+    if (d->consoleOptions.localEcho) {
         d->console.putData(toSend.toLocal8Bit(), sbTermConsole::TX);
     }
 }

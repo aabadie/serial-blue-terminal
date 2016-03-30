@@ -7,7 +7,7 @@ set(${PROJECT_NAME}_RCCS
 
 set(${PROJECT_NAME}_HDRS
     sbTermExports.h
-    sbTermPortSettings.h
+    sbTermSettings.h
     sbTermSettingsController.h
 )
 

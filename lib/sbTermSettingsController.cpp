@@ -4,7 +4,7 @@
 #include <QSettings>
 #include <QDir>
 
-#include "sbTermPortSettings.h"
+#include "sbTermSettings.h"
 
 class sbTermSettingsController::Private
 {
@@ -29,49 +29,76 @@ sbTermSettingsController::~sbTermSettingsController()
 
 void sbTermSettingsController::initialize() const
 {
-    sbTerm::PortSettings toInit;
     qDebug() << "Initializing default settings in file" << d->settings.fileName();
-    toInit.portName    = "";
-    toInit.baudRate    = static_cast<QSerialPort::BaudRate>(9600);
-    toInit.dataBits    = static_cast<QSerialPort::DataBits>(8);
-    toInit.parity      = static_cast<QSerialPort::Parity>(0);
-    toInit.stopBits    = static_cast<QSerialPort::StopBits>(1);
-    toInit.flowControl = static_cast<QSerialPort::FlowControl>(0);
-    toInit.localEcho   = true;
-    toInit.crlf        = true;
-    toInit.hexa        = false;
-    toInit.datetime    = true;
+    sbTerm::PortSettings portInit;
+    portInit.portName    = "";
+    portInit.baudRate    = static_cast<QSerialPort::BaudRate>(9600);
+    portInit.dataBits    = static_cast<QSerialPort::DataBits>(8);
+    portInit.parity      = static_cast<QSerialPort::Parity>(0);
+    portInit.stopBits    = static_cast<QSerialPort::StopBits>(1);
+    portInit.flowControl = static_cast<QSerialPort::FlowControl>(0);
     
-    this->write(toInit);
+    this->writeSerialSettings(portInit);
+    
+    sbTerm::ConsoleOptions consoleInit;
+    consoleInit.localEcho = true;
+    consoleInit.crlf      = true;
+    consoleInit.hexa      = false;
+    consoleInit.datetime  = true;
+    consoleInit.rxColor   = "#A9D0F5";
+    consoleInit.txColor   = "#F5A9A9";
+    consoleInit.dtColor   = "#F2F5A9";
+    consoleInit.bgColor   = "#1C1C1C";
+    
+    this->writeConsoleOptions(consoleInit);
 }
 
-void sbTermSettingsController::read(sbTerm::PortSettings &toRead) const
+void sbTermSettingsController::readSerialSettings(sbTerm::PortSettings &settings) const
 {
-    qDebug() << "Read settings from file" << d->settings.fileName();
-    toRead.portName    = d->settings.value("default/portName", "").toString();
-    toRead.baudRate    = static_cast<QSerialPort::BaudRate>(d->settings.value("default/baudRate", 9600).toInt());
-    toRead.dataBits    = static_cast<QSerialPort::DataBits>(d->settings.value("default/dataBits", 8).toInt());
-    toRead.parity      = static_cast<QSerialPort::Parity>(d->settings.value("default/parity", 0).toInt());
-    toRead.stopBits    = static_cast<QSerialPort::StopBits>(d->settings.value("default/stopBits", 1).toInt());
-    toRead.flowControl = static_cast<QSerialPort::FlowControl>(d->settings.value("default/flowControl", 0).toInt());
-    toRead.localEcho   = d->settings.value("default/localEcho", true).toBool();
-    toRead.crlf        = d->settings.value("default/crlf", true).toBool();
-    toRead.hexa        = d->settings.value("default/hexa", false).toBool();
-    toRead.datetime    = d->settings.value("default/datetime", true).toBool();
+    qDebug() << "Read serial port settings";
+    settings.portName    = d->settings.value("serial/portName", "").toString();
+    settings.baudRate    = static_cast<QSerialPort::BaudRate>(d->settings.value("serial/baudRate", 9600).toInt());
+    settings.dataBits    = static_cast<QSerialPort::DataBits>(d->settings.value("serial/dataBits", 8).toInt());
+    settings.parity      = static_cast<QSerialPort::Parity>(d->settings.value("serial/parity", 0).toInt());
+    settings.stopBits    = static_cast<QSerialPort::StopBits>(d->settings.value("serial/stopBits", 1).toInt());
+    settings.flowControl = static_cast<QSerialPort::FlowControl>(d->settings.value("serial/flowControl", 0).toInt());
 }
 
-void sbTermSettingsController::write(const sbTerm::PortSettings &toWrite) const
+void sbTermSettingsController::writeSerialSettings(const sbTerm::PortSettings &settings) const
 {
-    d->settings.beginGroup("default");
-    d->settings.setValue("portName",    toWrite.portName);
-    d->settings.setValue("baudRate",    toWrite.baudRate);
-    d->settings.setValue("dataBits",    toWrite.dataBits);
-    d->settings.setValue("parity",      toWrite.parity);
-    d->settings.setValue("stopBits",    toWrite.stopBits);
-    d->settings.setValue("flowControl", toWrite.flowControl );
-    d->settings.setValue("localEcho",   toWrite.localEcho);
-    d->settings.setValue("crlf",        toWrite.crlf);
-    d->settings.setValue("hexa",        toWrite.hexa);
-    d->settings.setValue("datetime",    toWrite.datetime);
+    d->settings.beginGroup("serial");
+    d->settings.setValue("portName",    settings.portName);
+    d->settings.setValue("baudRate",    settings.baudRate);
+    d->settings.setValue("dataBits",    settings.dataBits);
+    d->settings.setValue("parity",      settings.parity);
+    d->settings.setValue("stopBits",    settings.stopBits);
+    d->settings.setValue("flowControl", settings.flowControl );
+    d->settings.endGroup();
+}
+
+void sbTermSettingsController::readConsoleOptions(sbTerm::ConsoleOptions &options) const
+{
+    qDebug() << "Read console options";
+    options.localEcho = d->settings.value("console/localEcho", true).toBool();
+    options.crlf      = d->settings.value("console/crlf", true).toBool();
+    options.hexa      = d->settings.value("console/hexa", false).toBool();
+    options.datetime  = d->settings.value("console/datetime", true).toBool();
+    options.rxColor   = d->settings.value("console/rxColor", "#A9D0F5").toString();
+    options.txColor   = d->settings.value("console/txColor", "#F5A9A9").toString();
+    options.dtColor   = d->settings.value("console/dtColor", "#F2F5A9").toString();
+    options.bgColor   = d->settings.value("console/bgColor", "#1C1C1C").toString();
+}
+
+void sbTermSettingsController::writeConsoleOptions(const sbTerm::ConsoleOptions &options) const
+{
+    d->settings.beginGroup("console");
+    d->settings.setValue("localEcho", options.localEcho);
+    d->settings.setValue("crlf",      options.crlf);
+    d->settings.setValue("hexa",      options.hexa);
+    d->settings.setValue("datetime",  options.datetime);
+    d->settings.setValue("rxColor",   options.rxColor);
+    d->settings.setValue("txColor",   options.txColor);
+    d->settings.setValue("dtColor",   options.dtColor);
+    d->settings.setValue("bgColor",   options.bgColor);
     d->settings.endGroup();
 }

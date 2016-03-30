@@ -32,6 +32,11 @@ public:
     bool displayHexadecimal() const;
     void setDisplayHexadecimal(bool set);
 
+    void setBackgroundColor(const QString &color);
+    void setDateTimeColor(const QString &color);
+    void setRXColor(const QString &color);
+    void setTXColor(const QString &color);
+    
 signals:
     void dataReady(const QByteArray &data);
 
